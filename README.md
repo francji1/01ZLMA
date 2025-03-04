@@ -1,4 +1,4 @@
 # 01ZLMA
 
-01ZLMA 2023/2024 course materials
+01ZLMA 2024/2025 course materials
 
