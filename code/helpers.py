@@ -338,11 +338,16 @@ class Anova:
                 self._print_header(test_norm, sub_models[-1], dispersion)
             return self.__res
 
-        # Build a row per model: first row = baseline, subsequent rows = test of pair (i-1, i)
+        # Build a row per model: first row = baseline (stats of the first
+        # argument), subsequent rows = test of pair (i-1, i) with the stats
+        # of the *i-th* argument shown, so the display follows the user's
+        # argument order regardless of which model is actually larger.
         rows = [self._baseline_row(sub_models[0])]
         for i in range(1, len(sub_models)):
-            m_small, m_large = _order_models(sub_models[i - 1], sub_models[i])
-            rows.append(self._test_pair(m_small, m_large, test_norm, dispersion))
+            rows.append(
+                self._test_pair(sub_models[i - 1], sub_models[i],
+                                test_norm, dispersion)
+            )
         df = pd.DataFrame(rows)
 
         if term_labels is not None and len(term_labels) == len(df):
@@ -407,14 +412,24 @@ class Anova:
             "deviance":       np.nan,
         }
 
-    def _test_pair(self, m_small, m_large, test_norm, dispersion):
-        """Compute the requested test statistic for the pair (m_small, m_large)."""
+    def _test_pair(self, m_prev, m_next, test_norm, dispersion):
+        """Compute the requested test statistic for the pair (m_prev, m_next).
+
+        The *numerical* test is insensitive to the argument order — we call
+        ``_order_models`` internally so that LRT/F/Wald/Rao always work the
+        same way regardless of which model the user puts first. The
+        *displayed* ``resid_df`` and ``resid_deviance`` columns, however,
+        reflect ``m_next`` (the second argument), so consecutive rows in
+        the result DataFrame tabulate the models in the order the user
+        passed them, matching R's ``anova.glm`` convention.
+        """
+        m_small, m_large = _order_models(m_prev, m_next)
         df_diff       = m_large.df_model - m_small.df_model
         deviance_diff = m_small.deviance - m_large.deviance
 
         row = {
-            "resid_df":       m_large.df_resid,
-            "resid_deviance": m_large.deviance,
+            "resid_df":       m_next.df_resid,
+            "resid_deviance": m_next.deviance,
             "df":             df_diff,
             "deviance":       deviance_diff,
         }
