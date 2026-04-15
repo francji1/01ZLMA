@@ -78,6 +78,9 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# Notebook generator scripts (per-exercise .py builders, not for students)
+code/_builders/
+
 # IPython
 profile_default/
 ipython_config.py
