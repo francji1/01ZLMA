@@ -139,6 +139,9 @@ def _expected_score_and_info(model_full, beta_at):
     X = np.asarray(model_full.model.exog)
     y = np.asarray(model_full.model.endog)
     eta = X @ beta_at
+    offset = getattr(model_full.model, "offset", None)
+    if offset is not None:
+        eta = eta + np.asarray(offset)
     mu  = fam.link.inverse(eta)
     var_mu  = fam.variance(mu)
     dmu_deta = fam.link.inverse_deriv(eta)
