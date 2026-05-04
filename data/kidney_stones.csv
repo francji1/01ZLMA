@@ -1,0 +1,9 @@
+size,method,outcome,counts
+small,A,success,81
+small,A,failure,6
+small,B,success,234
+small,B,failure,36
+large,A,success,192
+large,A,failure,71
+large,B,success,55
+large,B,failure,25

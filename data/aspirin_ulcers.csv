@@ -1,0 +1,9 @@
+ulcer,case,aspirin,counts
+stomach,control,no,62
+stomach,control,yes,6
+stomach,case,no,39
+stomach,case,yes,25
+duodenal,control,no,53
+duodenal,control,yes,8
+duodenal,case,no,49
+duodenal,case,yes,8

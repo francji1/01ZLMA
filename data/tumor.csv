@@ -1,0 +1,13 @@
+type,site,freq
+HMF,head,22
+HMF,trunk,2
+HMF,extr,10
+SSM,head,16
+SSM,trunk,54
+SSM,extr,115
+NOD,head,19
+NOD,trunk,33
+NOD,extr,73
+IND,head,11
+IND,trunk,17
+IND,extr,28
