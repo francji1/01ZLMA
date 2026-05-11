@@ -1,0 +1,153 @@
+# 01ZLMA Cvičení 11 — T1 & T2: Birch
+
+*Reference:* Birch, M. W. (1963). Maximum Likelihood in Three-Way Contingency Tables. *JRSS-B* **25**(1), 220–233.
+
+---
+
+## 1. T1: Ekvivalence Poissonova a multinomického rozdělení
+Mějme kontingenční tabulku $I \times J$, nezávislé $Y_{ij} \sim \mathrm{Po}(\mu_{ij})$, log-lineární model $\log \mu_{ij} = \mathbf{x}_{ij}^\top \boldsymbol{\beta}$ s interceptem $\beta_0$. Pro následující věty zavádíme jednotný
+index s $c = IJ$ $k = 1, \dots, c$.
+
+**Tvrzení.** Mějme $Y_1, \dots, Y_c$ nezávislé, $Y_k \sim \mathrm{Po}(\mu_k)$, $S = \sum_k Y_k$, $\pi_k = \mu_k / \mu_\cdot$, kde $\mu_\cdot = \sum_k \mu_k$. Potom platí, že $[\mathbf{Y} \mid S=n] := [(Y_1, \dots, Y_c) \mid S = n] \sim \mathrm{Mult}_c(n, \boldsymbol{\pi})$.
+
+**Důkaz.**
+
+$S$ má Poissonovo rozdělení ze standardních statistických výsledků s rozdělením $S \sim \mathrm{Po}(\mu_\cdot)$.
+Sdružená pravděpodobnostní funkce nezávislých poissonovských veličin má tvar
+
+$$P(\mathbf{Y} = \mathbf{y}) = \prod_{k=1}^c \frac{\mu_k^{y_k} e^{-\mu_k}}{y_k!} = \frac{e^{-\mu_\cdot}}{\prod_k y_k!} \prod_k \mu_k^{y_k}.$$
+
+ROzdělení $S$ je opět poisson s $P(S = n) = \mu_\cdot^n e^{-\mu_\cdot} / n!$.
+
+Pro libovolné $\mathbf{y}$ splňující $\sum_k y_k = n$ platí $\{\mathbf{Y} = \mathbf{y}\} \subseteq \{S = n\}$, tedy $P(\mathbf{Y} = \mathbf{y} \mid S = n) = P(\mathbf{Y} = \mathbf{y}) / P(S = n)$. Máme tedy
+
+$$P(\mathbf{Y} = \mathbf{y} \mid S = n) = \frac{e^{-\mu_\cdot}}{\prod_k y_k!} \prod_k \mu_k^{y_k} \;\cdot\; \frac{n!}{\mu_\cdot^n \, e^{-\mu_\cdot}}. $$
+
+$$= \frac{n!}{\prod_k y_k!} \cdot \frac{\prod_k \mu_k^{y_k}}{\mu_\cdot^n}.$$
+
+Rozložíme $\mu_\cdot^n = \mu_\cdot^{y_1 + \cdots + y_c} = \mu_\cdot^{y_1} \cdots \mu_\cdot^{y_c} = \prod_k \mu_\cdot^{y_k}$ 
+
+$$= \frac{n!}{\prod_k y_k!} \prod_{k=1}^c \frac{\mu_k^{y_k}}{\mu_\cdot^{y_k}} = \frac{n!}{\prod_k y_k!} \prod_{k=1}^c \left(\frac{\mu_k}{\mu_\cdot}\right)^{y_k} = \frac{n!}{\prod_k y_k!} \prod_{k=1}^c \pi_k^{y_k}. $$
+
+Toto je pravděpodobnostní funkce $\mathrm{Mult}_c(n, \boldsymbol{\pi})$ (platí skutečně $\sum_k \pi_k = \mu_\cdot / \mu_\cdot = 1$).
+
+### 1.2 Rozklad log-likelihood funkce
+
+Zapišme tři log-likelihood funkce, ato pro poissonovské glm s log linkem,
+pro multinomické a pro poissonovskou pravděpodobnost náležící danému
+součtu
+
+$$\ell_{\mathrm{Pois}}(\boldsymbol{\beta}) = \sum_k \bigl(y_k \log \mu_k - \mu_k - \log y_k!\bigr),$$
+
+$$\ell_{\mathrm{Mult}}(\boldsymbol{\beta} \mid n) = \log n! - \sum_k \log y_k! + \sum_k y_k \log \pi_k,$$
+
+$$\ell(n, \mu_\cdot) = n \log \mu_\cdot - \mu_\cdot - \log n!.$$
+
+Pak platí, že $\ell_{\mathrm{Pois}} = \ell_{\mathrm{Mult}} + \ell(n, \mu_\cdot)$.
+
+To platí triviálně, neboť 
+$$P(\mathbf{Y}=\mathbf{y}) = P(\mathbf{Y}=\mathbf{y}\mid S = n) P(S = n)$$
+A z vlastností logaritmů (součin na součet) máme
+
+$$\ell_{\mathrm{Pois}}(\boldsymbol{\beta}) = \ell_{\mathrm{Mult}}(\boldsymbol{\beta} \mid n) + \ell\bigl(n;\, \mu_\cdot(\boldsymbol{\beta})\bigr).$$
+
+### 1.3 Score equations řeší totéž
+
+Jelikož uvažujeme log-likelihood, tedy máme $\mu_k = e^{\mathbf{x}_k^\top \boldsymbol{\beta}}$, platí $\partial \mu_k / \partial \beta_r = \mu_k x_{kr}$, a tedy
+
+$$\frac{\partial \ell_{\mathrm{Pois}}}{\partial \beta_r} = \sum_k (y_k - \mu_k) x_{kr}, \qquad \frac{\partial \ell(n, \mu_\cdot)}{\partial \beta_r} = \left(\frac{n}{\mu_\cdot} - 1\right) \sum_k \mu_k x_{kr}.$$
+
+A neboť pro intercept ($r = 0$, $x_{k0} = 1$ pro všechna $k$) platí 
+$$\partial \ell_{\mathrm{Pois}} / \partial \beta_0 = n - \mu_\cdot = 0 \Rightarrow \hat{\mu}_\cdot = n$$.
+
+Dosadíme $\hat{\mu}_\cdot = n$ do druhého výrazu, z čehož máme $(n/n - 1) \cdot (\cdots) = 0 \; \forall \; r$.
+
+Platí tedy  $0 = \partial \ell_{\mathrm{Pois}} / \partial \beta_r = \partial \ell_{\mathrm{Mult}} / \partial \beta_r + 0$ v bodě MLE, což znamená $\partial \ell_{\mathrm{Mult}} / \partial \beta_r = 0$ pro všechna $r \geq 1$.
+
+Obsahuje-li model itnercept, platí tedy ekvivalence multinomického a poisonnovského maximalizování
+
+---
+
+## 2. T2: Birchova věta — full generality
+ 
+### 2.1 Srovnání poissona a multinomického
+ 
+Uvažujme modelování tabulky s buněčnými četnostmi $n_{ij}$ (či $n_{ijk}$ ve vícerozměrném případě) a log-link modelem pro střední hodnoty $m_{ij}(\boldsymbol{\theta})$.
+ 
+**Zcela Poissonův model:** Všechny buňkové četnosti jsou nezávislé, $N_{ij} \sim \mathrm{Po}(m_{ij})$. Žádný marginální součet není fixován předem, celkový rozsah $n_{\cdot\cdot}$ je sám zcela náhodný. Log-likelihood je pak
+ 
+$$L_{\mathrm{I}} = \sum_{ij}(n_{ij} \log m_{ij} - m_{ij} - \log n_{ij}!).$$
+ 
+**Součinový multinomický model:** Některé marginální součty jsou fixovány designem experimentu. Například při výběru s pevnými řádkovými součty jsme předem zvolili $N_{i\cdot}$ subjektů v každé úrovni řádkového faktoru a jen rozložení do sloupců je náhodné. Podmíněně na $N_{i\cdot}$ má vektor $(N_{i1}, \dots, N_{iJ})$ multinomické rozdělení s pravděpodobnostmi $m_{ij}/m_{i\cdot}$ a rozsahem $N_{i\cdot}$. 
+
+Obecně platí, že uvažujeme
+stratum $\alpha$ mající pevný součet $N_\alpha = \sum_{i \in \alpha} n_i$ a buňkové četnosti $n_i$, $i \in \alpha$. Podmíněně na $N_\alpha$ má vektor $(N_i)_{i \in \alpha}$ multinomické rozdělení s pravděpodobnostmi $\pi_{i|\alpha} = m_i / m_\alpha$, kde $m_\alpha = \sum_{i \in \alpha} m_i$. PMF:
+
+$$P\bigl((N_i)_{i \in \alpha}\bigr) = \frac{N_\alpha!}{\prod_{i \in \alpha} n_i!} \prod_{i \in \alpha} \pi_{i|\alpha}^{n_i} = \frac{N_\alpha!}{\prod_{i \in \alpha} n_i!} \prod_{i \in \alpha} \left(\frac{m_i}{m_\alpha}\right)^{n_i}$$
+
+Log-likelihood strata $\alpha$ je pak:
+
+$$L_{\mathrm{II},\alpha} = \log N_\alpha! - \sum_{i \in \alpha} \log n_i! + \sum_{i \in \alpha} n_i \log m_i - \sum_{i \in \alpha} n_i \log m_\alpha$$
+
+První dva členy nezávisejí na parametru $\boldsymbol{\theta}$. V posledním členu $\sum_{i \in \alpha} n_i = N_\alpha$, takže:
+
+$$L_{\mathrm{II},\alpha} = \sum_{i \in \alpha} n_i \log m_i - N_\alpha \log m_\alpha + \text{(konst. v } \boldsymbol{\theta}\text{)}$$
+
+Sečtením přes všechna strata $\alpha = 1, \dots, p-1$:
+
+$$L_{\mathrm{II}} = \sum_{\alpha=1}^{p-1} \sum_{i \in \alpha} n_i \log m_i - \sum_{\alpha=1}^{p-1} N_\alpha \log m_\alpha + C$$
+
+kde $C$ shrnuje všechny $\boldsymbol{\theta}$-konstantní členy. První dvojitý součet projde přes všechny buňky $i = 1, \dots, a$, takže:
+
+$$L_{\mathrm{II}} = \sum_{i=1}^a n_i \log m_i - \sum_{\alpha=1}^{p-1} N_\alpha \log m_\alpha + C$$
+ 
+Člen $\sum_{i=1}^a n_i \log m_i$ je v obou log-věrohodnostech totožný, v poissonovském modelu se poze skrývá pod sumou přes $i,j$, které tedy uvažujme opět pod jedním společným indexem $i \in \widehat{a} := IJ$. V $L_{\mathrm{I}}$ je navíc (po přeznačení) člen $-\sum_{i=1}^a m_i$ a v $L_{\mathrm{II}}$ je vyčnívající $-\sum_{\alpha=1}^{p-1} N_\alpha \log m_\alpha$. Odečtením získáme vztah
+
+$$L_{\mathrm{II}} - L_{\mathrm{I}} = \sum_{i=1}^a m_i - \sum_{\alpha=1}^{p-1} N_\alpha \log m_\alpha + C',$$
+
+Na přípustné množině $\{m_\alpha = N_\alpha\}$ se člen $\sum_\alpha N_\alpha \log m_\alpha$ redukuje na $\sum_\alpha N_\alpha \log N_\alpha$ (konstanta) a stejně tak $\sum_i m_i = \sum_\alpha m_\alpha = \sum_\alpha N_\alpha$ (konstanta). Obě log-věrohodnosti se tedy na přípustné množině liší jen o $\boldsymbol{\theta}$-konstant
+
+Splňuje-li poissonovský MLE omezení kladená designem - tj. $\sum_j \hat{m}_{ij} = N_{i\cdot}$ pro každé $i$ - pak $\hat{\boldsymbol{\theta}}$ je totožný pro oba způsoby konstrukce experimentu.
+ 
+ 
+### 2.2 Shoda marginálních součtů
+ 
+Uvažujme tabulku $r \times s \times t$ bez trojné interakce:
+ 
+$$\log m_{ijk} = u + u_{1i} + u_{2j} + u_{3k} + u_{12,ij} + u_{13,ik} + u_{23,jk}.$$
+ 
+Poissonovská log-likelihood funkce (Birch rov. 3.9):
+ 
+$$L = n_{\cdot\cdot\cdot} u + \sum_i n_{i\cdot\cdot} u_{1i} + \sum_j n_{\cdot j\cdot} u_{2j} + \sum_k n_{\cdot\cdot k} u_{3k} + \sum_{ij} n_{ij\cdot} u_{12,ij} + \sum_{ik} n_{i\cdot k} u_{13,ik} + \sum_{jk} n_{\cdot jk} u_{23,jk} - m_{\cdot\cdot\cdot} - \text{konst}.\tag{1}$$
+ 
+Skóre pro $u$: $\partial L / \partial u = n_{\cdot\cdot\cdot} - m_{\cdot\cdot\cdot} = 0$ $\Rightarrow$ $\hat{m}_{\cdot\cdot\cdot} = n_{\cdot\cdot\cdot}$.
+ 
+Skóre pro $u_{1i}$ ($i \geq 2$): Z podmínky $u_{11} = -\sum_{i \geq 2} u_{1i}$ plyne $\partial m_{1jk} / \partial u_{1i} = -m_{1jk}$, $\partial m_{ijk} / \partial u_{1i} = m_{ijk}$. Tedy
+ 
+$$\frac{\partial L}{\partial u_{1i}} = (n_{i\cdot\cdot} - m_{i\cdot\cdot}) - (n_{1\cdot\cdot} - m_{1\cdot\cdot}) = 0 \qquad (i = 2, \dots, r).$$
+ 
+Označme $\delta = n_{i\cdot\cdot} - m_{i\cdot\cdot}$. Sečtením získáme $r\delta = \sum_i \delta_i = n_{\cdot\cdot\cdot} - m_{\cdot\cdot\cdot} = 0$, tedy $\delta = 0$ a $\hat{m}_{i\cdot\cdot} = n_{i\cdot\cdot}$ pro všechna $i$. Analogicky $\hat{m}_{\cdot j\cdot} = n_{\cdot j\cdot}$, $\hat{m}_{\cdot\cdot k} = n_{\cdot\cdot k}$.
+ 
+Skóre pro $u_{12,ij}$ ($i \geq 2$, $j \geq 2$): Derivací (1) s podmínkami $u_{12,1j} = -\sum_{i \geq 2} u_{12,ij}$, $u_{12,i1} = -\sum_{j \geq 2} u_{12,ij}$:
+ 
+$$\frac{\partial L}{\partial u_{12,ij}} = \delta_{ij} - \delta_{1j} - \delta_{i1} + \delta_{11} = 0, \qquad \delta_{ij} := n_{ij\cdot} - m_{ij\cdot}.$$
+ 
+Z jednorozměrného výsledku: $\sum_j \delta_{ij} = n_{i\cdot\cdot} - m_{i\cdot\cdot} = 0$ pro každé $i$. Sečteme skórovou rovnici přes $j = 2, \dots, s$: levá strana dává $(-\delta_{i1}) - (-\delta_{11}) - (s-1)\delta_{i1} + (s-1)\delta_{11} = s(\delta_{11} - \delta_{i1}) = 0$, tedy $\delta_{i1} = \delta_{11}$ pro všechna $i$. Z $\sum_i \delta_{i1} = 0$: $r\delta_{11} = 0$ $\Rightarrow$ $\delta_{i1} = 0$ pro všechna $i$. Analogicky $\delta_{1j} = 0$ pro všechna $j$; poté $\delta_{ij} = \delta_{1j} + \delta_{i1} - \delta_{11} = 0$ pro všechna $(i,j)$.
+ 
+$$\boxed{\hat{m}_{ij\cdot} = n_{ij\cdot}, \quad \hat{m}_{i\cdot k} = n_{i\cdot k}, \quad \hat{m}_{\cdot jk} = n_{\cdot jk}.}$$
+ 
+### 2.3 Jednoznačnost
+ 
+Zapišme $\log m_{ijk} = \sum_h a_{ijk,h} \theta_h$, kde $a_{ijk,h} = \partial \log m_{ijk} / \partial \theta_h \in \{0, \pm 1\}$. Záporný hessián má kvadratickou formu
+ 
+$$\sum_{h,\ell} \left(-\frac{\partial^2 L}{\partial \theta_h \partial \theta_\ell}\right) x_h x_\ell = \sum_{ijk} m_{ijk} \left(\sum_h a_{ijk,h} \, x_h\right)^2 \geq 0.$$
+ 
+Rovnost nastane jedině když $v + v_{1i} + v_{2j} + v_{3k} + v_{12,ij} + v_{13,ik} + v_{23,jk} = 0$ pro všechna $(i,j,k)$. odečtením dvojic rovnic a sumací přes indexy dostaneme $\mathbf{x} = \mathbf{0}$. Funkce $L$ je tedy ryze konkávní. Jelikož $L \to -\infty$ pro $\|\boldsymbol{\theta}\| \to \infty$ (všechna $n_{ijk} > 0$), existuje právě jeden stacionární bod a ten je globálním maximem.
+ 
+### 2.4 Konečné znění
+ 
+Pro hierarchický log-lineární model, obsahuje-li model parametry generující marginální součty fixované designem výběru, maximálně věrohodné odhady všech zbývajících parametrů se shodují pro poissonovský, multinomický i součinový multinomický výběrový plán.
+ 
+Každý povinný parametr v modelu generuje skórovou rovnici, která nutí příslušný vyrovnaný marginální součet rovnat se pozorovanému. Tyto rovnosti jsou právě omezení kladená multinomickým výběrem. Podle části 2.1 se pak se MLE shodují. 
+ 
+
